@@ -1,0 +1,24 @@
+# mailctl configuration file
+
+# list of accounts
+# must have at least 1 account
+accounts:
+- username: example1@example.com
+  password: example_password_1
+  imap_server: outlook.office365.com
+  imap_port: 993
+  smtp_server: smtp.outlook.com
+  smtp_port: 587
+- username: example2@example.com
+  password: example_password_2
+  imap_server: imap.gmail.com
+  imap_port: 993
+  smtp_server: smtp.gmail.com
+  smtp_port: 587
+
+
+# default account to use
+# 1 is the first account listed, 2 is the second account listed, and so forth
+# default: 0
+default_account: 0
+
