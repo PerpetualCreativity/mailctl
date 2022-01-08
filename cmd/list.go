@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"mailctl/utils"
+	"github.com/PerpetualCreativity/mailctl/utils"
 	"fmt"
 	"os"
 	"strconv"

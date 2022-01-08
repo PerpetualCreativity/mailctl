@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 package main
 
-import "mailctl/cmd"
+import "github.com/PerpetualCreativity/mailctl/cmd"
 
 func main() {
 	cmd.Execute()

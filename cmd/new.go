@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"bytes"
-	"mailctl/utils"
+	"github.com/PerpetualCreativity/mailctl/utils"
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"

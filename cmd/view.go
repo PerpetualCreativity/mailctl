@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	utils "mailctl/utils"
+	"github.com/PerpetualCreativity/mailctl/utils"
 	"fmt"
 	"os"
 	"os/exec"
