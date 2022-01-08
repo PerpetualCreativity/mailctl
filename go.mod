@@ -1,4 +1,4 @@
-module mailctl
+module github.com/PerpetualCreativity/mailctl
 
 go 1.17
 
