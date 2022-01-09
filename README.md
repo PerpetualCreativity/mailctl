@@ -9,7 +9,7 @@ Thanks for checking out `mailctl`!
 Currently, as `mailctl` is in alpha, the only way to install it is through `go`:
 
 ```sh
-go install github.com/PerpetualCreativity/mailctl
+go install github.com/PerpetualCreativity/mailctl@latest
 ```
 
 # config
