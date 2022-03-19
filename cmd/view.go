@@ -43,7 +43,7 @@ after the id.`,
 		err = godown.Convert(f, strings.NewReader(body), nil)
 		fc.ErrCheck(err, "Could not convert to markdown")
 
-		fmt.Printf("Displaying %s", subject)
+		fc.Neutral("Displaying"+subject)
 		pager_cmd := strings.Split(os.ExpandEnv("$PAGER"), " ")
 		pager := exec.Command(pager_cmd[0], f.Name())
 		pager.Stdin = os.Stdin

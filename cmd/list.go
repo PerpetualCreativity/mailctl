@@ -67,7 +67,7 @@ options. Number is the number of messages to display
 			done <- c.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope}, messages)
 		}()
 
-		fmt.Printf("Last %d messages:\n", numberMessages)
+		fc.Neutral("Last "+string(numberMessages)+" messages:\n")
 		tw := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', 0)
 		for msg := range messages {
 			sender := ""
