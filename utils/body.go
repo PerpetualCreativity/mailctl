@@ -10,10 +10,10 @@ import (
 )
 
 func GetMessage(c *client.Client, id int, folder string) (string, string) {
-	ErrExp(c.Unselect(), client.ErrNoMailboxSelected, "Could not unselect current folder")
+	fc.ErrExp(c.Unselect(), client.ErrNoMailboxSelected, "Could not unselect current folder")
 	status, err := c.Select(folder, false)
-	ErrCheck(err, "Could not select folder")
-	ErrNComp(status.Messages, 0, "No messages in folder")
+	fc.ErrCheck(err, "Could not select folder")
+	fc.ErrNComp(status.Messages, 0, "No messages in folder")
 
 	seqset := new(imap.SeqSet)
 	seqset.AddNum(uint32(id))
@@ -25,28 +25,28 @@ func GetMessage(c *client.Client, id int, folder string) (string, string) {
 		done <- c.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope, section.FetchItem()}, messages)
 	}()
 
-	ErrCheck(<-done, "Failed to get message parts")
+	fc.ErrCheck(<-done, "Failed to get message parts")
 
 	msg := <-messages
 
 	subject := func() string {
 		defer func() {
-			ErrCheck(recover(), "Subject not defined")
+			fc.ErrCheck(recover(), "Subject not defined")
 		}()
 		return msg.Envelope.Subject
 	}()
 
 	r := func() imap.Literal {
 		defer func() {
-			ErrCheck(recover(), "Invalid ID")
+			fc.ErrCheck(recover(), "Invalid ID")
 		}()
 		return msg.GetBody(section)
 	}()
 
-	ErrNComp(r, nil, "Server did not return a message body")
+	fc.ErrNComp(r, nil, "Server did not return a message body")
 
 	mr, err := mail.CreateReader(r)
-	ErrCheck(err, "Could not read message")
+	fc.ErrCheck(err, "Could not read message")
 
 	var body string
 	for {
@@ -54,11 +54,11 @@ func GetMessage(c *client.Client, id int, folder string) (string, string) {
 		if err == io.EOF {
 			break
 		}
-		ErrCheck(err, "Could not read message")
+		fc.ErrCheck(err, "Could not read message")
 		switch p.Header.(type) {
 		case *mail.InlineHeader:
 			b, err := ioutil.ReadAll(p.Body)
-			ErrCheck(err, "Could not read message")
+			fc.ErrCheck(err, "Could not read message")
 			body = string(b)
 			break
 		}

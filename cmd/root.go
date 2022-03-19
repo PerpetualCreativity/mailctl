@@ -5,7 +5,10 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/PerpetualCreativity/fancyChecks"
 )
+
+var fc = fancyChecks.New("", "", "Status: ", "Error: ")
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{

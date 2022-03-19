@@ -12,13 +12,13 @@ func Send(c *smtp.Client, to string, from string, subject string, body string) {
 	toList := strings.Split(to, "; ")
 
 	err := c.Mail(from, nil)
-	ErrCheck(err, "Error in setup of message")
+	fc.ErrCheck(err, "Error in setup of message")
 	for _, t := range toList {
 		err = c.Rcpt(t)
-		ErrCheck(err, "Error in setup of message")
+		fc.ErrCheck(err, "Error in setup of message")
 	}
 	wc, err := c.Data()
-	ErrCheck(err, "Error in setup of message")
+	fc.ErrCheck(err, "Error in setup of message")
 
 	fmt.Fprintf(wc,
 		"Date: %s\r\nFrom: %s\r\nSubject: %s\r\nTo: %s\r\n\r\n%s\r\n.\r\n",

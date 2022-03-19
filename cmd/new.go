@@ -50,9 +50,9 @@ var newCmd = &cobra.Command{
 		// find which mailbox is for drafts
 		draftsBox := utils.FindMailbox(c, "\\Drafts", "Drafts")
 		err := c.Append(draftsBox, nil, time.Now(), &msg)
-		utils.ErrCheck(err, "Could not add draft to Drafts folder")
+		fc.ErrCheck(err, "Could not add draft to Drafts folder")
 
-		utils.Success("Created draft.")
+		fc.Success("Created draft.")
 	},
 }
 

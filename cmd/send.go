@@ -17,7 +17,7 @@ var sendCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		var id int
 		id, err := strconv.Atoi(args[0])
-		utils.ErrCheck(err, "ID is not an integer")
+		fc.ErrCheck(err, "ID is not an integer")
 
 		ic := utils.ImapLogin()
 		sc := utils.SmtpLogin()
@@ -48,7 +48,7 @@ var sendCmd = &cobra.Command{
 
 		utils.MoveMail(ic, id, draftsFolder, utils.FindMailbox(ic, "\\Sent", "Sent"))
 
-		utils.Success("Sent email.")
+		fc.Success("Sent email.")
 	},
 }
 

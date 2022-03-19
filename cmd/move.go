@@ -21,7 +21,7 @@ will be listed.`,
 		defer c.Logout()
 
 		id, err := strconv.Atoi(args[0])
-		utils.ErrCheck(err, "ID is not an integer")
+		fc.ErrCheck(err, "ID is not an integer")
 
 		// prompt user for folder names if necessary
 		mailboxNames := utils.ListMailboxes(c)
@@ -35,14 +35,14 @@ will be listed.`,
 				PageSize: 10,
 			}
 			err := survey.AskOne(folderPrompt, &toFolder)
-			utils.ErrCheck(err, "Prompt failed")
+			fc.ErrCheck(err, "Prompt failed")
 		} else {
 			toFolder = args[2]
 		}
 
 		utils.MoveMail(c, id, args[1], toFolder)
 
-		utils.Success("Moved to " + toFolder)
+		fc.Success("Moved to " + toFolder)
 	},
 }
 

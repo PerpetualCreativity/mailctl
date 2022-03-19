@@ -25,7 +25,7 @@ after the id.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var id int
 		id, err := strconv.Atoi(args[0])
-		utils.ErrCheck(err, "ID is not an integer")
+		fc.ErrCheck(err, "ID is not an integer")
 
 		c := utils.ImapLogin()
 		defer c.Logout()
@@ -38,10 +38,10 @@ after the id.`,
 		subject, body := utils.GetMessage(c, id, folder)
 
 		f, err := os.CreateTemp("", "*.md")
-		utils.ErrCheck(err, "Could not create temporary file")
+		fc.ErrCheck(err, "Could not create temporary file")
 		defer os.Remove(f.Name())
 		err = godown.Convert(f, strings.NewReader(body), nil)
-		utils.ErrCheck(err, "Could not convert to markdown")
+		fc.ErrCheck(err, "Could not convert to markdown")
 
 		fmt.Printf("Displaying %s", subject)
 		pager_cmd := strings.Split(os.ExpandEnv("$PAGER"), " ")
@@ -49,7 +49,7 @@ after the id.`,
 		pager.Stdin = os.Stdin
 		pager.Stdout = os.Stdout
 		err = pager.Run()
-		utils.ErrCheck(err, "Pager quit")
+		fc.ErrCheck(err, "Pager quit")
 		time.Sleep(3000)
 	},
 }

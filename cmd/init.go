@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"github.com/PerpetualCreativity/mailctl/utils"
 	"os"
 	_ "embed"
 
@@ -20,12 +19,12 @@ var initCmd = &cobra.Command{
 	for your site.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		homedir, err := homedir.Dir()
-		utils.ErrCheck(err, "Could not find home directory")
+		fc.ErrCheck(err, "Could not find home directory")
 
 		err = os.WriteFile(homedir+"/.mailctl.yml", defconfig, 0644)
-		utils.ErrCheck(err, "Could not successfully create config file")
+		fc.ErrCheck(err, "Could not successfully create config file")
 
-		utils.Success("Created configuration file at " + homedir+"/.mailctl.yml")
+		fc.Success("Created configuration file at " + homedir+"/.mailctl.yml")
 	},
 }
 

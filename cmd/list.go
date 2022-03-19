@@ -43,14 +43,14 @@ options. Number is the number of messages to display
 				PageSize: 10,
 			}
 			err := survey.AskOne(folderPrompt, &folder)
-			utils.ErrCheck(err, "Prompt failed")
+			fc.ErrCheck(err, "Prompt failed")
 		} else {
 			folder = args[0]
 		}
 
 		// select mailbox
 		mailbox, err := c.Select(folder, false)
-		utils.ErrCheck(err, "Could not select mailbox")
+		fc.ErrCheck(err, "Could not select mailbox")
 		// get last numberMessages messages
 		from := uint32(1)
 		to := mailbox.Messages
@@ -78,7 +78,7 @@ options. Number is the number of messages to display
 		}
 		tw.Flush()
 
-		utils.ErrCheck(<-done, "No messsages in this folder")
+		fc.ErrCheck(<-done, "No messsages in this folder")
 	},
 }
 
