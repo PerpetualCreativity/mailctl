@@ -2,14 +2,12 @@ package cmd
 
 import (
 	"github.com/PerpetualCreativity/mailctl/utils"
-	"fmt"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 
-	godown "github.com/mattn/godown"
 	"github.com/spf13/cobra"
 )
 
@@ -40,8 +38,8 @@ after the id.`,
 		f, err := os.CreateTemp("", "*.md")
 		fc.ErrCheck(err, "Could not create temporary file")
 		defer os.Remove(f.Name())
-		err = godown.Convert(f, strings.NewReader(body), nil)
-		fc.ErrCheck(err, "Could not convert to markdown")
+		_, err = f.WriteString(body)
+		fc.ErrCheck(err, "Could not display body of message")
 
 		fc.Neutral("Displaying"+subject)
 		pager_cmd := strings.Split(os.ExpandEnv("$PAGER"), " ")
