@@ -58,6 +58,8 @@ github.com/PerpetualCreativity/fancyChecks v0.1.0 h1:8rLuMBCevQ4Lwv3MI9jxlNLSLmB
 github.com/PerpetualCreativity/fancyChecks v0.1.0/go.mod h1:RVfYIGX57cSxCRbNV8n2x0c0JNNJo1bvLJGAdhmd6Bo=
 github.com/PerpetualCreativity/fancyChecks v0.1.1 h1:tIg93zz50/0Yg8NuR0R2qgtYSRHEmvpTG8LIhFKOKrk=
 github.com/PerpetualCreativity/fancyChecks v0.1.1/go.mod h1:RVfYIGX57cSxCRbNV8n2x0c0JNNJo1bvLJGAdhmd6Bo=
+github.com/PerpetualCreativity/fancyChecks v0.1.2 h1:GOElq8L7kyrnQR0MsqErQE8fdPp0wmmbzUqa5AgFecE=
+github.com/PerpetualCreativity/fancyChecks v0.1.2/go.mod h1:RVfYIGX57cSxCRbNV8n2x0c0JNNJo1bvLJGAdhmd6Bo=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
 github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRFXyAe+OPACYpWeL0wqObRcbAqCMya13uyzqw0=

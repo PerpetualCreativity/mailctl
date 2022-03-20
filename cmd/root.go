@@ -8,7 +8,7 @@ import (
 	"github.com/PerpetualCreativity/fancyChecks"
 )
 
-var fc = fancyChecks.New("", "", "Status: ", "Error: ")
+var fc = fancyChecks.New("", "", "Status", "Error")
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{

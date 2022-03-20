@@ -10,7 +10,7 @@ import (
 	"github.com/PerpetualCreativity/fancyChecks"
 )
 
-var fc = fancyChecks.New("", "", "Status: ", "Error: ")
+var fc = fancyChecks.New("", "", "Status", "Error")
 
 // get login details from config
 func loginDetails() (username string, password string,

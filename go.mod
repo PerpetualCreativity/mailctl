@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.3.2
-	github.com/PerpetualCreativity/fancyChecks v0.1.1
+	github.com/PerpetualCreativity/fancyChecks v0.1.2
 	github.com/emersion/go-imap v1.2.0
 	github.com/emersion/go-message v0.15.0
 	github.com/emersion/go-sasl v0.0.0-20211008083017-0b9dcfb154ac
