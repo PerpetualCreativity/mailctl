@@ -3,7 +3,6 @@ package cmd
 import (
 	"bytes"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/PerpetualCreativity/mailctl/utils"
