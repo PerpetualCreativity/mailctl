@@ -41,7 +41,7 @@ after the id.`,
 		_, err = f.WriteString(body)
 		fc.ErrCheck(err, "Could not display body of message")
 
-		fc.Neutral("Displaying"+subject)
+		fc.Neutral("Displaying "+subject)
 		pager_cmd := strings.Split(os.ExpandEnv("$PAGER"), " ")
 		pager := exec.Command(pager_cmd[0], f.Name())
 		pager.Stdin = os.Stdin
