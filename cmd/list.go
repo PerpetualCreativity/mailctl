@@ -8,7 +8,6 @@ import (
 	"text/tabwriter"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/emersion/go-imap"
 	"github.com/spf13/cobra"
 )
 
@@ -48,37 +47,14 @@ options. Number is the number of messages to display
 			folder = args[0]
 		}
 
-		// select mailbox
-		mailbox, err := c.Select(folder, false)
-		fc.ErrCheck(err, "Could not select mailbox")
-		// get last numberMessages messages
-		from := uint32(1)
-		to := mailbox.Messages
+		messages := utils.ListMessages(c, folder, numberMessages)
 
-		if mailbox.Messages > numberMessages {
-			from = mailbox.Messages - numberMessages
-		}
-		seqset := new(imap.SeqSet)
-		seqset.AddRange(from, to)
-
-		messages := make(chan *imap.Message, numberMessages)
-		done := make(chan error, 1)
-		go func() {
-			done <- c.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope}, messages)
-		}()
-
-		fc.Neutral("Last "+string(numberMessages)+" messages:\n")
+		fc.Neutral("Last "+fmt.Sprintf("%d", numberMessages)+" messages:\n")
 		tw := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', 0)
-		for msg := range messages {
-			sender := ""
-			if s := msg.Envelope.From; len(s) > 0 {
-				sender = msg.Envelope.From[0].PersonalName
-			}
-			fmt.Fprintf(tw, "#%s\t%s\t %s\n", strconv.FormatUint(uint64(msg.SeqNum), 10), sender, msg.Envelope.Subject)
+		for _, msg := range messages {
+			fmt.Fprintf(tw, "#%s\t%s\t %s\n", strconv.FormatUint(uint64(msg.SeqNum), 10), msg.Sender, msg.Subject)
 		}
 		tw.Flush()
-
-		fc.ErrCheck(<-done, "No messsages in this folder")
 	},
 }
 
