@@ -13,14 +13,14 @@ import (
 var fc = fancyChecks.New("", "", "Status", "Error")
 
 // get login details from config
-func loginDetails() (username string, password string,
+func loginDetails(configIndex int) (username string, password string,
 	imap_server string, imap_port int,
 	smtp_server string, smtp_port int,
 ) {
 
 	fc.ErrComp(viper.IsSet("accounts"), true, "Accounts not set in config file")
 
-	ld := viper.GetStringMapString("accounts." + strconv.Itoa(viper.GetInt("default_account")-1))
+	ld := viper.GetStringMapString("accounts." + strconv.Itoa(configIndex))
 
 	username = ld["username"]
 	fc.ErrNComp(username, "", "unable to read `username` field in config")
@@ -44,8 +44,10 @@ func loginDetails() (username string, password string,
 }
 
 // log in to IMAP
-func ImapLogin() *client.Client {
-	username, password, server, port, _, _ := loginDetails()
+func ImapLogin(account ...int) *client.Client {
+	index := viper.GetInt("default_account")-1
+	if len(account)>0 { index = account[0] }
+	username, password, server, port, _, _ := loginDetails(index)
 	c, err := client.DialTLS(server+":"+strconv.Itoa(port), nil)
 	fc.ErrCheck(err, "Could not connect to server")
 
@@ -55,8 +57,10 @@ func ImapLogin() *client.Client {
 }
 
 // log in to SMTP
-func SmtpLogin() *smtp.Client {
-	username, password, _, _, server, port := loginDetails()
+func SmtpLogin(account ...int) *smtp.Client {
+	index := viper.GetInt("default_account")-1
+	if len(account)>0 { index = account[0] }
+	username, password, _, _, server, port := loginDetails(index)
 	c, err := smtp.Dial(server + ":" + strconv.Itoa(port))
 	fc.ErrCheck(err, "Could not connect to server")
 	fc.ErrCheck(c.StartTLS(nil), "Could not start TLS connection")

@@ -3,18 +3,26 @@
 # list of accounts
 # must have at least 1 account
 accounts:
-- username: example1@example.com
+- account_name: outlook
+  name: Example User1
+  username: example1@example.com
   password: example_password_1
   imap_server: outlook.office365.com
   imap_port: 993
   smtp_server: smtp.outlook.com
   smtp_port: 587
-- username: example2@example.com
+  ignore_mailboxes:
+    - "Deleted/"
+    - "Sync Issues"
+- account_name: gmail
+  name: Example User2
+  username: example2@example.com
   password: example_password_2
   imap_server: imap.gmail.com
   imap_port: 993
   smtp_server: smtp.gmail.com
   smtp_port: 587
+  ignore_mailboxes:
 
 
 # default account to use

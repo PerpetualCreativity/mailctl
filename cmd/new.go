@@ -28,8 +28,7 @@ var newCmd = &cobra.Command{
 				},
 				Validate: survey.Required,
 			},
-			{
-				Name:     "subject",
+			{ Name:     "subject",
 				Prompt:   &survey.Input{Message: "Subject: "},
 				Validate: survey.Required,
 			},

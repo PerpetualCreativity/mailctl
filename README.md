@@ -1,6 +1,6 @@
 # mailctl (in alpha)
 
-**modern console-based email app** (not TUI!)
+**modern console-based email app** (CLI *and* TUI!)
 
 Thanks for checking out `mailctl`!
 
@@ -16,7 +16,13 @@ go install github.com/PerpetualCreativity/mailctl@latest
 
 Run `mailctl init` to put a sample configuration file at `~/.mailctl.yml`. Alternatively, you can [view the sample in GitHub](/cmd/mailctl.yml).
 
-# usage
+# usage (tui)
+
+Once you've edited the [config file](#config), run `mailctl` (without any additional commands) to launch the TUI.
+
+Please note that the TUI currently has a unpinned dependency on [charmbracelet/bubbletea](https://github.com/charmbracelet/bubbletea) so it will be unreliable for now.
+
+# usage (cli)
 
 The name of the executable is `mailctl` (you may wish to alias this). You can specify which account to use for any command with `-a 1`
 

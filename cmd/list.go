@@ -47,7 +47,12 @@ options. Number is the number of messages to display
 			folder = args[0]
 		}
 
-		messages := utils.ListMessages(c, folder, numberMessages)
+		messages := utils.ListMessages(c, folder, numberMessages, 0)
+
+		if len(messages) == 0 {
+			fc.Neutral("No messages in this folder.")
+			return
+		}
 
 		fc.Neutral("Last "+fmt.Sprintf("%d", numberMessages)+" messages:\n")
 		tw := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', 0)

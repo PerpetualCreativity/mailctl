@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/PerpetualCreativity/fancyChecks"
+	"github.com/PerpetualCreativity/mailctl/tui"
 )
 
 var fc = fancyChecks.New("", "", "Status", "Error")
@@ -15,6 +16,9 @@ var rootCmd = &cobra.Command{
 	Use:   "mailctl",
 	Short: "A modern console-based mail application.",
 	Long:  `mailctl is an intuitive console-based mail application.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		tui.Start()
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

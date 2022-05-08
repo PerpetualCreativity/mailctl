@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"bytes"
 	"io"
 	"io/ioutil"
+	"time"
 
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
@@ -65,3 +67,24 @@ func GetMessage(c *client.Client, id int, folder string) (string, string) {
 	}
 	return subject, body
 }
+
+func NewMessage(c *client.Client, folder string, from *mail.Address, to []*mail.Address, body string) {
+	h := mail.Header{}
+	h.SetDate(time.Now())
+	h.SetAddressList("From", []*mail.Address{from})
+	h.SetAddressList("To", to)
+
+	var msg bytes.Buffer
+	mw, _ := mail.CreateWriter(&msg, h)
+	tw, _ := mw.CreateInline()
+	var th mail.InlineHeader
+	th.Set("Content-Type", "text/plain")
+	w, _ := tw.CreatePart(th)
+	io.WriteString(w, body)
+	w.Close()
+	tw.Close()
+
+	draftsBox := FindMailbox(c, "\\Drafts", "Drafts")
+	c.Append(draftsBox, nil, time.Now(), &msg)
+}
+

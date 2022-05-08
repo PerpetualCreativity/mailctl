@@ -1,8 +1,12 @@
 package utils
 
 import (
+	"strconv"
+	"strings"
+
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
+	"github.com/spf13/viper"
 )
 
 func getMailboxes(c *client.Client) chan *imap.MailboxInfo {
@@ -31,26 +35,39 @@ func FindMailbox(c *client.Client, attr string, fallback string) string {
 	return box
 }
 
-func ListMailboxes(c *client.Client) []string {
+func ListMailboxes(c *client.Client, configIndex ...int) []string {
 	mailboxes := getMailboxes(c)
+
+	ci := viper.GetInt("default_account")
+	if len(configIndex)>0 { ci = configIndex[0] }
+	ignoreList := viper.GetStringSlice("accounts." + strconv.Itoa(ci-1) + ".ignore_mailboxes")
+
 	var mailboxNames []string
 	for m := range mailboxes {
-		mailboxNames = append(mailboxNames, m.Name)
+		exclude := false
+		for _, i := range ignoreList {
+			if strings.Contains(m.Name, i) {
+				exclude = true
+				break
+			}
+		}
+		if !exclude { mailboxNames = append(mailboxNames, m.Name) }
 	}
+
 	return mailboxNames
 }
 
-type message struct {
+type Message struct {
 	SeqNum	uint32
 	Sender  string
 	Subject string
 }
 
-func ListMessages(c *client.Client, folder string, number uint32) []message {
+func ListMessages(c *client.Client, folder string, number uint32, offset uint32) []Message {
 	mailbox, err := c.Select(folder, false)
 	fc.ErrCheck(err, "Could not select mailbox")
 
-	from := uint32(1)
+	from := uint32(offset+1)
 	to := mailbox.Messages
 
 	if mailbox.Messages > number {
@@ -65,19 +82,25 @@ func ListMessages(c *client.Client, folder string, number uint32) []message {
 		done <- c.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope}, messages)
 	}()
 
-	msgs := []message{}
+	msgs := []Message{}
 	for msg := range messages {
 		sender := ""
 		if s := msg.Envelope.From; len(s) > 0 {
 			sender = msg.Envelope.From[0].PersonalName
+			if sender == "" {
+				sender = msg.Envelope.From[0].Address()
+			}
+		} else {
+			sender = "[no sender]"
 		}
-		msgs = append(msgs, message{
+		msgs = append(msgs, Message{
 			SeqNum: msg.SeqNum,
 			Sender: sender,
 			Subject: msg.Envelope.Subject,
 		})
 	}
-	fc.ErrCheck(<-done, "No messsages in this folder")
+	<- done
 
 	return msgs
 }
+
