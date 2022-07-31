@@ -2,8 +2,6 @@
 
 **modern console-based email app** (CLI *and* TUI!)
 
-Thanks for checking out `mailctl`!
-
 # installation
 
 Currently, as `mailctl` is in alpha, the only way to install it is through `go`:
@@ -19,8 +17,6 @@ Run `mailctl init` to put a sample configuration file at `~/.mailctl.yml`. Alter
 # usage (tui)
 
 Once you've edited the [config file](#config), run `mailctl` (without any additional commands) to launch the TUI.
-
-Please note that the TUI currently has a unpinned dependency on [charmbracelet/bubbletea](https://github.com/charmbracelet/bubbletea) so it will be unreliable for now.
 
 # usage (cli)
 

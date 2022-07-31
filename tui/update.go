@@ -10,10 +10,10 @@ import (
 )
 
 type editorEnd struct {
-	err			error
-	filename	string
-	modified	bool
-	message		*messageModel
+	err      error
+	filename string
+	modified bool
+	message  *messageModel
 }
 
 func openMessage(m *messageModel, modifiable bool) tea.Cmd {
@@ -27,12 +27,12 @@ func openMessage(m *messageModel, modifiable bool) tea.Cmd {
 	}
 	temp.Close()
 	c := exec.Command(os.Getenv("EDITOR"), temp.Name())
-	return tea.Exec(tea.WrapExecCommand(c), func(err error) tea.Msg {
+	return tea.ExecProcess(c, func(err error) tea.Msg {
 		return editorEnd{
-			err: err,
+			err:      err,
 			filename: temp.Name(),
 			modified: modifiable,
-			message: m,
+			message:  m,
 		}
 	})
 }
@@ -129,4 +129,3 @@ func (m model) messageListUpdate(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	}
 	return m, nil
 }
-
