@@ -17,7 +17,8 @@ and current folder. If toFolder is not specified, options
 will be listed.`,
 	Args: cobra.RangeArgs(2, 3),
 	Run: func(cmd *cobra.Command, args []string) {
-		c := utils.ImapLogin()
+		c, err := utils.ImapLogin()
+		fc.ErrCheck(err, "error when logging in to IMAP server")
 		defer c.Logout()
 
 		id, err := strconv.Atoi(args[0])
@@ -40,7 +41,8 @@ will be listed.`,
 			toFolder = args[2]
 		}
 
-		utils.MoveMail(c, id, args[1], toFolder)
+		err = utils.MoveMail(c, id, args[1], toFolder)
+		fc.ErrCheck(err, "error when moving mail")
 
 		fc.Success("Moved to " + toFolder)
 	},

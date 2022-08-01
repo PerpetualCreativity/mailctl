@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 
@@ -39,7 +40,9 @@ func ListMailboxes(c *client.Client, configIndex ...int) []string {
 	mailboxes := getMailboxes(c)
 
 	ci := viper.GetInt("default_account")
-	if len(configIndex)>0 { ci = configIndex[0] }
+	if len(configIndex) > 0 {
+		ci = configIndex[0]
+	}
 	ignoreList := viper.GetStringSlice("accounts." + strconv.Itoa(ci-1) + ".ignore_mailboxes")
 
 	var mailboxNames []string
@@ -51,23 +54,27 @@ func ListMailboxes(c *client.Client, configIndex ...int) []string {
 				break
 			}
 		}
-		if !exclude { mailboxNames = append(mailboxNames, m.Name) }
+		if !exclude {
+			mailboxNames = append(mailboxNames, m.Name)
+		}
 	}
 
 	return mailboxNames
 }
 
 type Message struct {
-	SeqNum	uint32
+	SeqNum  uint32
 	Sender  string
 	Subject string
 }
 
-func ListMessages(c *client.Client, folder string, number uint32, offset uint32) []Message {
+func ListMessages(c *client.Client, folder string, number uint32, offset uint32) ([]Message, error) {
 	mailbox, err := c.Select(folder, false)
-	fc.ErrCheck(err, "Could not select mailbox")
+	if err != nil {
+		return nil, errors.New("could not select mailbox")
+	}
 
-	from := uint32(offset+1)
+	from := offset + 1
 	to := mailbox.Messages
 
 	if mailbox.Messages > number {
@@ -82,7 +89,7 @@ func ListMessages(c *client.Client, folder string, number uint32, offset uint32)
 		done <- c.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope}, messages)
 	}()
 
-	msgs := []Message{}
+	var msgs []Message
 	for msg := range messages {
 		sender := ""
 		if s := msg.Envelope.From; len(s) > 0 {
@@ -94,13 +101,12 @@ func ListMessages(c *client.Client, folder string, number uint32, offset uint32)
 			sender = "[no sender]"
 		}
 		msgs = append(msgs, Message{
-			SeqNum: msg.SeqNum,
-			Sender: sender,
+			SeqNum:  msg.SeqNum,
+			Sender:  sender,
 			Subject: msg.Envelope.Subject,
 		})
 	}
-	<- done
+	<-done
 
-	return msgs
+	return msgs, nil
 }
-

@@ -19,15 +19,18 @@ var sendCmd = &cobra.Command{
 		id, err := strconv.Atoi(args[0])
 		fc.ErrCheck(err, "ID is not an integer")
 
-		ic := utils.ImapLogin()
-		sc := utils.SmtpLogin()
+		ic, err := utils.ImapLogin()
+		fc.ErrCheck(err, "error when logging into IMAP server")
+		sc, err := utils.SmtpLogin()
+		fc.ErrCheck(err, "error when logging into SMTP server")
 
 		defer ic.Logout()
 		defer sc.Close()
 
 		draftsFolder := utils.FindMailbox(ic, "\\Drafts", "Drafts")
 
-		subject, body := utils.GetMessage(ic, id, draftsFolder)
+		subject, body, err := utils.GetMessage(ic, id, draftsFolder)
+		fc.ErrCheck(err, "error when getting message details")
 
 		sendPrompt := []*survey.Question{
 			{
@@ -44,9 +47,10 @@ var sendCmd = &cobra.Command{
 
 		survey.Ask(sendPrompt, &response)
 
-		utils.Send(sc, response.To, "vedthiru@hotmail.com", subject, body)
-
-		utils.MoveMail(ic, id, draftsFolder, utils.FindMailbox(ic, "\\Sent", "Sent"))
+		err = utils.Send(sc, response.To, "vedthiru@hotmail.com", subject, body)
+		fc.ErrCheck(err, "error when sending message")
+		err = utils.MoveMail(ic, id, draftsFolder, utils.FindMailbox(ic, "\\Sent", "Sent"))
+		fc.ErrCheck(err, "error when moving sent draft to Sent folder")
 
 		fc.Success("Sent email.")
 	},

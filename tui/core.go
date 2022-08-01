@@ -26,13 +26,15 @@ const (
 )
 
 type model struct {
-	accounts		[]accountModel
-	activeAccount	index
-	width			int
-	height			int
-	focus			focusArea
-	help			help.Model
+	accounts      []accountModel
+	activeAccount index
+	width         int
+	height        int
+	focus         focusArea
+	help          help.Model
+	errMessages   []string
 }
+
 func (m model) getActiveAccount() *accountModel {
 	return &m.accounts[m.activeAccount.v]
 }
@@ -44,34 +46,48 @@ func (m model) getActiveMessage() *messageModel {
 	activeMailbox := m.getActiveMailbox()
 	return &activeMailbox.messages[activeMailbox.activeMessage.v]
 }
+func (m model) addErr(err error) {
+	if err != nil {
+		m.errMessages = append(m.errMessages, err.Error())
+	}
+}
+
 type accountModel struct {
-	accountName		string
-	name			string
-	imapClient		*client.Client
-	smtpClient		*smtp.Client
-	mailboxes		[]mailboxModel
-	activeMailbox	index
-	configIndex		index
+	accountName   string
+	name          string
+	imapClient    *client.Client
+	smtpClient    *smtp.Client
+	mailboxes     []mailboxModel
+	activeMailbox index
+	configIndex   index
 }
 type mailboxModel struct {
-	name			string
-	messages		[]messageModel
-	loadedMessages	int
-	activeMessage	index
+	name           string
+	messages       []messageModel
+	loadedMessages int
+	activeMessage  index
 }
 type messageModel struct {
-	envelope		utils.Message
-	body			string
+	envelope utils.Message
+	body     string
 }
 type index struct {
 	v int
 }
-func (i *index) decr() { if i.v > 0 { i.v=i.v-1 } }
-func (i *index) incr(arrayLen int) { if i.v+1 < arrayLen { i.v=i.v+1 } }
+
+func (i *index) decr() {
+	if i.v > 0 {
+		i.v = i.v - 1
+	}
+}
+func (i *index) incr(arrayLen int) {
+	if i.v+1 < arrayLen {
+		i.v = i.v + 1
+	}
+}
 
 func (m model) Init() tea.Cmd {
 	return func() tea.Msg {
 		return nil
 	}
 }
-

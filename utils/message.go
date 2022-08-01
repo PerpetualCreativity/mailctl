@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"io/ioutil"
 	"time"
@@ -11,11 +12,17 @@ import (
 	"github.com/emersion/go-message/mail"
 )
 
-func GetMessage(c *client.Client, id int, folder string) (string, string) {
-	fc.ErrExp(c.Unselect(), client.ErrNoMailboxSelected, "Could not unselect current folder")
+func GetMessage(c *client.Client, id int, folder string) (string, string, error) {
+	if err := c.Unselect(); err != nil && !errors.Is(err, client.ErrNoMailboxSelected) {
+		return "", "", errors.New("could not unselect current folder")
+	}
 	status, err := c.Select(folder, false)
-	fc.ErrCheck(err, "Could not select folder")
-	fc.ErrNComp(status.Messages, 0, "No messages in folder")
+	if err != nil {
+		return "", "", errors.New("could not select folder")
+	}
+	if status.Messages == 0 {
+		return "", "", errors.New("no messages in folder")
+	}
 
 	seqset := new(imap.SeqSet)
 	seqset.AddNum(uint32(id))
@@ -27,28 +34,22 @@ func GetMessage(c *client.Client, id int, folder string) (string, string) {
 		done <- c.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope, section.FetchItem()}, messages)
 	}()
 
-	fc.ErrCheck(<-done, "Failed to get message parts")
+	if <-done != nil {
+		return "", "", errors.New("failed to get message parts")
+	}
 
 	msg := <-messages
 
-	subject := func() string {
-		defer func() {
-			fc.ErrCheck(recover(), "Subject not defined")
-		}()
-		return msg.Envelope.Subject
-	}()
+	r := msg.GetBody(section)
 
-	r := func() imap.Literal {
-		defer func() {
-			fc.ErrCheck(recover(), "Invalid ID")
-		}()
-		return msg.GetBody(section)
-	}()
-
-	fc.ErrNComp(r, nil, "Server did not return a message body")
+	if r == nil {
+		return "", "", errors.New("server did not return a message body")
+	}
 
 	mr, err := mail.CreateReader(r)
-	fc.ErrCheck(err, "Could not read message")
+	if err != nil {
+		return "", "", errors.New("could not read message")
+	}
 
 	var body string
 	for {
@@ -56,19 +57,23 @@ func GetMessage(c *client.Client, id int, folder string) (string, string) {
 		if err == io.EOF {
 			break
 		}
-		fc.ErrCheck(err, "Could not read message")
+		if err != nil {
+			return "", "", errors.New("could not read message")
+		}
 		switch p.Header.(type) {
 		case *mail.InlineHeader:
 			b, err := ioutil.ReadAll(p.Body)
-			fc.ErrCheck(err, "Could not read message")
+			if err != nil {
+				return "", "", errors.New("could not read message")
+			}
 			body = string(b)
 			break
 		}
 	}
-	return subject, body
+	return msg.Envelope.Subject, body, nil
 }
 
-func NewMessage(c *client.Client, folder string, from *mail.Address, to []*mail.Address, body string) {
+func NewMessage(c *client.Client, from *mail.Address, to []*mail.Address, body string) error {
 	h := mail.Header{}
 	h.SetDate(time.Now())
 	h.SetAddressList("From", []*mail.Address{from})
@@ -85,6 +90,9 @@ func NewMessage(c *client.Client, folder string, from *mail.Address, to []*mail.
 	tw.Close()
 
 	draftsBox := FindMailbox(c, "\\Drafts", "Drafts")
-	c.Append(draftsBox, nil, time.Now(), &msg)
+	err := c.Append(draftsBox, nil, time.Now(), &msg)
+	if err != nil {
+		return errors.New("could not add new message template to drafts")
+	}
+	return nil
 }
-

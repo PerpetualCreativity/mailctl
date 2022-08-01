@@ -22,27 +22,32 @@ func load() model {
 		name := ad["name"]
 		fc.ErrNComp(name, "", "unable to read `name` field in config")
 
+		ic, err := utils.ImapLogin(i)
+		fc.ErrCheck(err, "error when logging into IMAP server")
+		sc, err := utils.SmtpLogin(i)
+		fc.ErrCheck(err, "error when logging into SMTP server")
+
 		m.accounts = append(
 			m.accounts,
 			accountModel{
 				accountName: accountName,
-				name: name,
-				imapClient: utils.ImapLogin(i),
-				smtpClient: utils.SmtpLogin(i),
-				configIndex: index{v:i},
+				name:        name,
+				imapClient:  ic,
+				smtpClient:  sc,
+				configIndex: index{v: i},
 			},
 		)
 		for j, mailbox := range utils.ListMailboxes(m.accounts[i].imapClient) {
 			if mailbox == "INBOX" {
-				m.accounts[i].activeMailbox = index{v:j}
+				m.accounts[i].activeMailbox = index{v: j}
 			}
 			m.accounts[i].mailboxes = append(m.accounts[i].mailboxes, mailboxModel{
-				name: mailbox,
+				name:           mailbox,
 				loadedMessages: -1,
 			})
 		}
 	}
-	m.activeAccount = index{v: viper.GetInt("default_account")-1}
+	m.activeAccount = index{v: viper.GetInt("default_account") - 1}
 	m = m.loadActiveMailbox(50)
 
 	return m
@@ -56,13 +61,14 @@ func (m model) loadActiveMailbox(loadNumber int) model {
 	}
 
 	activeMailbox.messages = []messageModel{}
-	messageList := utils.ListMessages(
+	messageList, err := utils.ListMessages(
 		activeAccount.imapClient,
 		activeMailbox.name,
 		uint32(loadNumber),
 		uint32(max(1, loadNumber+2-activeMailbox.loadedMessages)),
 	)
-	for i := len(messageList)-1; i>=0; i-- {
+	m.addErr(err)
+	for i := len(messageList) - 1; i >= 0; i-- {
 		activeMailbox.messages = append(activeMailbox.messages, messageModel{
 			envelope: messageList[i],
 		})
@@ -76,11 +82,12 @@ func (m model) loadActiveMessageBody() model {
 	activeAccount := m.getActiveAccount()
 	activeMailbox := m.getActiveMailbox()
 	activeMessage := m.getActiveMessage()
-	_, activeMessage.body = utils.GetMessage(
+	var err error
+	_, activeMessage.body, err = utils.GetMessage(
 		activeAccount.imapClient,
 		int(activeMessage.envelope.SeqNum),
 		activeMailbox.name,
 	)
+	m.addErr(err)
 	return m
 }
-

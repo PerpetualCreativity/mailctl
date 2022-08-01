@@ -16,14 +16,15 @@ var editCmd = &cobra.Command{
 	Use:   "edit id [folder]",
 	Short: "Edit a draft.",
 	Long:  `Edit a draft. Call the command to try it out...`,
-	Args: cobra.RangeArgs(1, 2),
+	Args:  cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
 		// log in to IMAP server
 		var id int
 		id, err := strconv.Atoi(args[0])
 		fc.ErrCheck(err, "ID is not an integer")
 
-		c := utils.ImapLogin()
+		c, err := utils.ImapLogin()
+		fc.ErrCheck(err, "error logging in to IMAP server")
 		defer c.Logout()
 
 		folder := "Drafts"
@@ -31,23 +32,24 @@ var editCmd = &cobra.Command{
 			folder = args[1]
 		}
 
-		subject, body := utils.GetMessage(c, id, folder)
+		subject, body, err := utils.GetMessage(c, id, folder)
+		fc.ErrCheck(err, "error getting message")
 
 		messagePrompt := []*survey.Question{
 			{
 				Name: "body",
 				Prompt: &survey.Editor{
-					Message:  "Content",
-					FileName: "*.md",
-					Default: body,
+					Message:       "Content",
+					FileName:      "*.md",
+					Default:       body,
 					AppendDefault: true,
-					HideDefault: true,
+					HideDefault:   true,
 				},
 				Validate: survey.Required,
 			},
 			{
-				Name:     "subject",
-				Prompt:   &survey.Input{
+				Name: "subject",
+				Prompt: &survey.Input{
 					Message: "Subject: ",
 					Default: subject,
 				},
@@ -71,7 +73,8 @@ var editCmd = &cobra.Command{
 		draftsBox := utils.FindMailbox(c, "\\Drafts", "Drafts")
 		err = c.Append(draftsBox, nil, time.Now(), &msg)
 		fc.ErrCheck(err, "Could not add draft to Drafts folder")
-		utils.MoveMail(c, id, folder, "Deleted")
+		err = utils.MoveMail(c, id, folder, "Deleted")
+		fc.ErrCheck(err, "error when moving mail")
 
 		fc.Success("Created draft.")
 	},

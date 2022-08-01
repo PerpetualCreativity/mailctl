@@ -60,11 +60,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width - 2
 		m.help.Width = msg.Width
 	case editorEnd:
-		fc.ErrCheck(msg.err, "Error from editor")
+		m.addErr(msg.err)
 		// TODO: actually edit message
 		if msg.modified {
 			file, _ := os.Open(msg.filename)
-			contents := []byte{}
+			var contents []byte
 			file.Read(contents)
 		}
 		return m, tea.EnterAltScreen

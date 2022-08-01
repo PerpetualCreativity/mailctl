@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/PerpetualCreativity/mailctl/utils"
 	"fmt"
+	"github.com/PerpetualCreativity/mailctl/utils"
 	"os"
 	"strconv"
 	"text/tabwriter"
@@ -21,7 +21,8 @@ options. Number is the number of messages to display
 (default 10)`,
 	Args: cobra.MaximumNArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		c := utils.ImapLogin()
+		c, err := utils.ImapLogin()
+		fc.ErrCheck(err, "error when logging into IMAP server")
 		defer c.Logout()
 
 		numberMessages := uint32(10)
@@ -47,14 +48,15 @@ options. Number is the number of messages to display
 			folder = args[0]
 		}
 
-		messages := utils.ListMessages(c, folder, numberMessages, 0)
+		messages, err := utils.ListMessages(c, folder, numberMessages, 0)
+		fc.ErrCheck(err, "error when getting message list")
 
 		if len(messages) == 0 {
 			fc.Neutral("No messages in this folder.")
 			return
 		}
 
-		fc.Neutral("Last "+fmt.Sprintf("%d", numberMessages)+" messages:\n")
+		fc.Neutral("Last " + fmt.Sprintf("%d", numberMessages) + " messages:\n")
 		tw := tabwriter.NewWriter(os.Stdout, 1, 1, 1, ' ', 0)
 		for _, msg := range messages {
 			fmt.Fprintf(tw, "#%s\t%s\t %s\n", strconv.FormatUint(uint64(msg.SeqNum), 10), msg.Sender, msg.Subject)

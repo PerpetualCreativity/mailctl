@@ -16,7 +16,8 @@ var newCmd = &cobra.Command{
 	Long:  `Write a new email. Call the command to try it out...`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// log in to IMAP server
-		c := utils.ImapLogin()
+		c, err := utils.ImapLogin()
+		fc.ErrCheck(err, "error when logging in to IMAP server")
 		defer c.Logout()
 
 		messagePrompt := []*survey.Question{
@@ -28,7 +29,7 @@ var newCmd = &cobra.Command{
 				},
 				Validate: survey.Required,
 			},
-			{ Name:     "subject",
+			{Name: "subject",
 				Prompt:   &survey.Input{Message: "Subject: "},
 				Validate: survey.Required,
 			},
@@ -48,7 +49,7 @@ var newCmd = &cobra.Command{
 
 		// find which mailbox is for drafts
 		draftsBox := utils.FindMailbox(c, "\\Drafts", "Drafts")
-		err := c.Append(draftsBox, nil, time.Now(), &msg)
+		err = c.Append(draftsBox, nil, time.Now(), &msg)
 		fc.ErrCheck(err, "Could not add draft to Drafts folder")
 
 		fc.Success("Created draft.")

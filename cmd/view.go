@@ -25,7 +25,8 @@ after the id.`,
 		id, err := strconv.Atoi(args[0])
 		fc.ErrCheck(err, "ID is not an integer")
 
-		c := utils.ImapLogin()
+		c, err := utils.ImapLogin()
+		fc.ErrCheck(err, "error when logging into IMAP server")
 		defer c.Logout()
 
 		folder := "INBOX"
@@ -33,7 +34,8 @@ after the id.`,
 			folder = args[1]
 		}
 
-		subject, body := utils.GetMessage(c, id, folder)
+		subject, body, err := utils.GetMessage(c, id, folder)
+		fc.ErrCheck(err, "error when getting message details")
 
 		f, err := os.CreateTemp("", "*.md")
 		fc.ErrCheck(err, "Could not create temporary file")
@@ -41,9 +43,9 @@ after the id.`,
 		_, err = f.WriteString(body)
 		fc.ErrCheck(err, "Could not display body of message")
 
-		fc.Neutral("Displaying "+subject)
-		pager_cmd := strings.Split(os.ExpandEnv("$PAGER"), " ")
-		pager := exec.Command(pager_cmd[0], f.Name())
+		fc.Neutral("Displaying " + subject)
+		pagerCmd := strings.Split(os.ExpandEnv("$PAGER"), " ")
+		pager := exec.Command(pagerCmd[0], f.Name())
 		pager.Stdin = os.Stdin
 		pager.Stdout = os.Stdout
 		err = pager.Run()

@@ -17,14 +17,15 @@ var replyCmd = &cobra.Command{
 	Use:   "reply id [folder]",
 	Short: "Write a draft reply.",
 	Long:  `Write a draft email. Call the command to try it out...`,
-	Args: cobra.RangeArgs(1, 2),
+	Args:  cobra.RangeArgs(1, 2),
 	Run: func(cmd *cobra.Command, args []string) {
 		// log in to IMAP server
 		var id int
 		id, err := strconv.Atoi(args[0])
 		fc.ErrCheck(err, "ID is not an integer")
 
-		c := utils.ImapLogin()
+		c, err := utils.ImapLogin()
+		fc.ErrCheck(err, "error when logging into IMAP server")
 		defer c.Logout()
 
 		folder := "INBOX"
@@ -32,7 +33,8 @@ var replyCmd = &cobra.Command{
 			folder = args[1]
 		}
 
-		subject, body := utils.GetMessage(c, id, folder)
+		subject, body, err := utils.GetMessage(c, id, folder)
+		fc.ErrCheck(err, "error when getting message details")
 
 		prefixBody := ""
 		for _, line := range strings.Split(body, "\r\n") {
@@ -43,17 +45,17 @@ var replyCmd = &cobra.Command{
 			{
 				Name: "body",
 				Prompt: &survey.Editor{
-					Message:  "Content",
-					FileName: "*.md",
-					Default: prefixBody,
+					Message:       "Content",
+					FileName:      "*.md",
+					Default:       prefixBody,
 					AppendDefault: true,
-					HideDefault: true,
+					HideDefault:   true,
 				},
 				Validate: survey.Required,
 			},
 			{
-				Name:     "subject",
-				Prompt:   &survey.Input{
+				Name: "subject",
+				Prompt: &survey.Input{
 					Message: "Subject: ",
 					Default: "RE: " + subject,
 				},
