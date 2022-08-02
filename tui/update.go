@@ -18,7 +18,6 @@ type editorEnd struct {
 
 func openMessage(m *messageModel, modifiable bool) tea.Cmd {
 	temp, _ := os.CreateTemp("", "*.txt")
-	defer os.Remove(temp.Name())
 	temp.WriteString(m.body)
 	if modifiable {
 		temp.Chmod(0660)
@@ -61,12 +60,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.help.Width = msg.Width
 	case editorEnd:
 		m.addErr(msg.err)
-		// TODO: actually edit message
 		if msg.modified {
+			// TODO: actually edit message
 			file, _ := os.Open(msg.filename)
 			var contents []byte
 			file.Read(contents)
 		}
+		os.Remove(msg.filename)
 		return m, tea.EnterAltScreen
 	}
 	return m, nil
@@ -101,7 +101,6 @@ func (m model) mailboxesUpdate(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 
 func (m model) messageListUpdate(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	activeMailbox := m.getActiveMailbox()
-	isDraftsMailbox := m.getActiveMailbox().name == utils.FindMailbox(m.getActiveAccount().imapClient, "\\Drafts", "Drafts")
 	switch {
 	case key.Matches(msg, m.keys()["Next"]):
 		m.focus = focusMailboxes
@@ -110,12 +109,14 @@ func (m model) messageListUpdate(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	case key.Matches(msg, m.keys()["Up"]):
 		activeMailbox.activeMessage.decr()
 	case key.Matches(msg, m.keys()["Open"]):
+		isDraftsMailbox := activeMailbox.name == utils.FindMailbox(m.getActiveAccount().imapClient, "\\Drafts", "Drafts")
 		m.loadActiveMessageBody()
 		return m, openMessage(
 			m.getActiveMessage(),
 			isDraftsMailbox,
 		)
 	case key.Matches(msg, m.keys()["New"]):
+		isDraftsMailbox := activeMailbox.name == utils.FindMailbox(m.getActiveAccount().imapClient, "\\Drafts", "Drafts")
 		if isDraftsMailbox {
 			return m, openMessage(
 				&messageModel{envelope: utils.Message{Subject: "Subject:\n\n"}},
@@ -144,6 +145,7 @@ func (m model) messageListUpdate(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			},
 		})
 	case key.Matches(msg, m.keys()["Reply"]):
+		isDraftsMailbox := activeMailbox.name == utils.FindMailbox(m.getActiveAccount().imapClient, "\\Drafts", "Drafts")
 		if !isDraftsMailbox {
 		}
 	}

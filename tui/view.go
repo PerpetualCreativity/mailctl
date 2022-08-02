@@ -34,9 +34,8 @@ func trim(s string, x int) string {
 	return s[:x-2] + "…"
 }
 func cursorPrefix(b bool) string {
-	activeCursor := styles.Cursor.Render(">")
 	if b {
-		return activeCursor
+		return styles.Cursor.Render(">")
 	} else {
 		return " "
 	}
@@ -121,9 +120,9 @@ func renderAccounts(accounts []accountModel, activeIndex int, width int) string 
 	var tabs []string
 	for i, a := range accounts {
 		if i == activeIndex {
-			tabs = append(tabs, styles.ActiveAccount.Render(a.name))
+			tabs = append(tabs, styles.ActiveAccount.Render(a.accountName))
 		} else {
-			tabs = append(tabs, styles.Account.Render(a.name))
+			tabs = append(tabs, styles.Account.Render(a.accountName))
 		}
 	}
 	row := lipgloss.JoinHorizontal(lipgloss.Top, tabs...)
