@@ -25,6 +25,7 @@ const (
 	focusMessage
 )
 
+// model represents the TUI as a whole.
 type model struct {
 	accounts      []accountModel
 	activeAccount index
@@ -46,6 +47,7 @@ func (m model) getActiveMessage() *messageModel {
 	activeMailbox := m.getActiveMailbox()
 	return &activeMailbox.messages[activeMailbox.activeMessage.v]
 }
+// addErr adds err.Error() to errMessages if err != nil
 func (m model) addErr(err error) {
 	if err != nil {
 		m.errMessages = append(m.errMessages, err.Error())
@@ -61,16 +63,22 @@ type accountModel struct {
 	activeMailbox index
 	configIndex   index
 }
+// mailboxModel represents a mailbox and the
+// ancillary data required to render it.
 type mailboxModel struct {
 	name           string
 	messages       []messageModel
 	loadedMessages int
 	activeMessage  index
 }
+// messageModel is a simple wrapper that links
+// a utils.Message envelope with the body.
 type messageModel struct {
 	envelope utils.Message
 	body     string
 }
+// index is a simple counter type to prevent
+// increases/decreases beyond +1
 type index struct {
 	v int
 }
