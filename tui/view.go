@@ -72,6 +72,7 @@ func wrap(s string, c int) string {
 
 func (m model) View() string {
 	// TODO: add loading indicator / spinner: https://github.com/charmbracelet/bubbletea/issues/25#issuecomment-774343183
+	// TODO: implement prompts (to query for subject, move-to mailbox, etc.)
 	doc := strings.Builder{}
 	help := m.help.View(m.keys())
 	wrappedEM := ""

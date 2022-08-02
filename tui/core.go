@@ -22,7 +22,7 @@ const (
 	focusAccounts = iota
 	focusMailboxes
 	focusMessageList
-	focusMessage
+	focusPrompt
 )
 
 // model represents the TUI as a whole.
@@ -34,6 +34,7 @@ type model struct {
 	focus         focusArea
 	help          help.Model
 	errMessages   []string
+	prompts       []prompt
 }
 
 func (m model) getActiveAccount() *accountModel {
@@ -54,6 +55,30 @@ func (m model) addErr(err error) {
 	}
 }
 
+// prompt represents a question to the user for
+// simple information in the form of a string.
+// If choices != nil, the options will be
+// displayed and the user will only be able to
+// choose among them.
+// If choices == nil, the user will provide
+// arbitrary input.
+// activeChoice holds the current selected
+// answer by the user and is a good way to set
+// a default answer at the time the prompt is
+// first shown.
+// Once the user submits their answer, the
+// answer will be passed into the specified
+// process function. The application model will
+// be updated with the result.
+type prompt struct {
+	question     string
+	choices	     []string
+	activeChoice index
+	process      func (m model, s string) model
+}
+// accountModel represents an email account,
+// and stores the IMAP client and SMTP client
+// logged in to the account
 type accountModel struct {
 	accountName   string
 	name          string
