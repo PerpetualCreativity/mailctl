@@ -71,6 +71,7 @@ func wrap(s string, c int) string {
 }
 
 func (m model) View() string {
+	// TODO: add loading indicator / spinner: https://github.com/charmbracelet/bubbletea/issues/25#issuecomment-774343183
 	doc := strings.Builder{}
 	help := m.help.View(m.keys())
 	wrappedEM := ""
@@ -80,38 +81,30 @@ func (m model) View() string {
 	availableHeight := max(0, m.height-lipgloss.Height(help)-1-lipgloss.Height(wrappedEM))
 
 	mainView := ""
-	if m.focus == focusMessage {
-		mainView = renderMessage(
-			*m.getActiveMessage(),
-			m.focus == focusMessage,
-			m.width,
-			max(0, availableHeight),
-		)
-	} else {
-		accounts := renderAccounts(m.accounts, m.activeAccount.v, m.width) + "\n"
-		doc.WriteString(accounts)
+	accounts := renderAccounts(m.accounts, m.activeAccount.v, m.width) + "\n"
+	doc.WriteString(accounts)
 
-		availableHeight = max(0, availableHeight-lipgloss.Height(accounts))
+	availableHeight = max(0, availableHeight-lipgloss.Height(accounts))
 
-		activeAccount := *m.getActiveAccount()
-		mailboxes := renderMailboxes(
-			activeAccount.mailboxes,
-			activeAccount.activeMailbox.v,
-			m.focus == focusMailboxes,
-			availableHeight,
-		)
+	activeAccount := *m.getActiveAccount()
+	mailboxes := renderMailboxes(
+		activeAccount.mailboxes,
+		activeAccount.activeMailbox.v,
+		m.focus == focusMailboxes,
+		availableHeight,
+	)
 
-		activeMailbox := *m.getActiveMailbox()
-		messageList := renderMessageList(
-			activeMailbox.messages,
-			activeMailbox.activeMessage.v,
-			m.focus == focusMessageList,
-			m.width-lipgloss.Width(mailboxes),
-			availableHeight,
-		)
+	activeMailbox := *m.getActiveMailbox()
+	messageList := renderMessageList(
+		activeMailbox.messages,
+		activeMailbox.activeMessage.v,
+		m.focus == focusMessageList,
+		m.width-lipgloss.Width(mailboxes),
+		availableHeight,
+	)
 
-		mainView = lipgloss.JoinHorizontal(lipgloss.Left, mailboxes, messageList)
-	}
+	mainView = lipgloss.JoinHorizontal(lipgloss.Left, mailboxes, messageList)
+
 	doc.WriteString(mainView)
 	// availableHeight = max(0, availableHeight-lipgloss.Height(mainView))
 	// doc.WriteString(strings.Repeat("\n", availableHeight))
@@ -182,30 +175,4 @@ func renderMessageList(
 	return styles.Focus(styles.MessageListContainer, focus).Copy().
 		Width(availableWidth).
 		Render(lipgloss.JoinVertical(lipgloss.Left, messageList...))
-}
-
-func renderMessage(
-	message messageModel,
-	focus bool,
-	availableWidth int,
-	availableHeight int,
-) string {
-	// if len(message.wrappedBody)==0 {
-	// 	message.wrappedBody = wrap(message.body, availableWidth)
-	// }
-	// offset := message.offset.v
-	// displayBody := strings.Join(
-	// 	message.wrappedBody[offset:min0(len(message.wrappedBody)-1,availableHeight)+offset],
-	// 	"\n",
-	// )
-	messageView := lipgloss.JoinVertical(
-		lipgloss.Left,
-		styles.MessageSubject.Render(message.envelope.Subject),
-		styles.MessageSender.Render(message.envelope.Sender),
-		styles.MessageBody.Render(message.body),
-	)
-	return styles.Focus(styles.MessageContainer, focus).Copy().
-		Width(availableWidth).
-		Height(availableHeight).
-		Render(lipgloss.JoinVertical(lipgloss.Left, messageView))
 }
