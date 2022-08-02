@@ -123,6 +123,26 @@ func (m model) messageListUpdate(msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 			)
 		}
 	case key.Matches(msg, m.keys()["Move"]):
+		mailboxes := m.getActiveAccount().mailboxes
+		mailboxNames := make([]string, len(mailboxes))
+		for i, mailbox := range mailboxes {
+			mailboxNames[i] = mailbox.name
+		}
+		m.prompts = append(m.prompts, prompt{
+			question: "Which mailbox should this message be moved to?",
+			choices: mailboxNames,
+			activeChoice: m.getActiveAccount().activeMailbox,
+			process: func (m model, c string) model {
+				err := utils.MoveMail(
+					m.getActiveAccount().imapClient,
+					int(m.getActiveMessage().envelope.SeqNum),
+					m.getActiveMailbox().name,
+					c,
+				)
+				m.addErr(err)
+				return m
+			},
+		})
 	case key.Matches(msg, m.keys()["Reply"]):
 		if !isDraftsMailbox {
 		}
